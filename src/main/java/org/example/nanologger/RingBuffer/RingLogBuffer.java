@@ -27,4 +27,9 @@ public class RingLogBuffer implements LogBuffer {
             ringBuffer.notifyAll();
         }
     }
+
+    @Override
+    public boolean isEmpty() {
+        return ringBuffer.isEmpty();
+    }
 }

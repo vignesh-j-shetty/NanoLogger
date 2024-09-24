@@ -7,4 +7,6 @@ public interface LogBuffer {
     LogEvent get();
     // Interrupts all waiting
     void interrupt();
+
+    boolean isEmpty();
 }

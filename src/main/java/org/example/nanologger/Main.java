@@ -1,7 +1,5 @@
 package org.example.nanologger;
 
-
-
 public class Main {
 
     public static void main(String[] args)  {

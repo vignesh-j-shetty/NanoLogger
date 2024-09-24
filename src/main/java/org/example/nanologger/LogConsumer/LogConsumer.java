@@ -8,6 +8,7 @@ public class LogConsumer {
 
     private final LogBuffer logBuffer;
     private final LogProcessor logProcessor;
+
     private static class LogConsumerThread extends Thread {
         private final LogBuffer logBuffer;
         private boolean shouldConsume = true;
@@ -41,13 +42,16 @@ public class LogConsumer {
         thread = new LogConsumerThread(logBuffer, logProcessor);
         thread.setDaemon(true);
         thread.start();
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            System.out.println("TODO::Flush all logs");
-        }));
+        // Setup shutdown hooks to flush remaining data
+        Runtime.getRuntime().addShutdownHook(new Thread(this::shutDownConsumer));
     }
 
-    public void stopConsumer() {
+    public void shutDownConsumer() {
         thread.stopConsuming();
+        while (!logBuffer.isEmpty()) {
+            LogEvent logEvent = logBuffer.get();
+            logProcessor.process(logEvent);
+        }
     }
 
 }
