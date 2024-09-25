@@ -5,4 +5,4 @@ logFileConfig:
   isAppend: true
 
 bufferType: ringBuffer
-logLevel: FATAL
+logLevel: TRACE
