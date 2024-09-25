@@ -15,10 +15,37 @@ public class Logger {
         logConsumer.startConsumer();
         logLevel = Configurator.getConfig().getLogLevel().getLevelValue();
     }
+
+    public void trace(String msg, Object ... obj) {
+        LogEvent logEvent = new LogEvent(msg, obj, LogLevel.TRACE);
+        log(logEvent);
+    }
+
+    public void debug(String msg, Object ... obj) {
+        LogEvent logEvent = new LogEvent(msg, obj, LogLevel.DEBUG);
+        log(logEvent);
+    }
+
     public void info(String msg, Object ... obj) {
         LogEvent logEvent = new LogEvent(msg, obj, LogLevel.INFO);
         log(logEvent);
     }
+
+    public void warn(String msg, Object ... obj) {
+        LogEvent logEvent = new LogEvent(msg, obj, LogLevel.WARN);
+        log(logEvent);
+    }
+
+    public void error(String msg, Object ... obj) {
+        LogEvent logEvent = new LogEvent(msg, obj, LogLevel.ERROR);
+        log(logEvent);
+    }
+
+    public void fatal(String msg, Object ... obj) {
+        LogEvent logEvent = new LogEvent(msg, obj, LogLevel.FATAL);
+        log(logEvent);
+    }
+
 
     private void log(LogEvent logEvent) {
         if(logLevel <= logEvent.getLogLevel().getLevelValue()) {

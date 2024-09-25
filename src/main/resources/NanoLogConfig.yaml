@@ -1,8 +1,8 @@
 logOutputType: console
-logOutputPattern: "%level %t{ yyyy-MM-dd HH:mm:ss.SSS}  %context Log-> %message"
+logOutputPattern: "%context %t{ yyyy-MM-dd HH:mm:ss.SSS} %level %message"
 logFileConfig:
   name: mylog.txt
   isAppend: true
 
 bufferType: ringBuffer
-logLevel: WARN
+logLevel: FATAL
