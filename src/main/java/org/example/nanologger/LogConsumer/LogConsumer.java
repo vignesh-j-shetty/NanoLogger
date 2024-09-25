@@ -13,6 +13,8 @@ public class LogConsumer {
         private final LogBuffer logBuffer;
         private boolean shouldConsume = true;
         private final LogProcessor logProcessor;
+        private volatile boolean isFinished = false;
+
         public LogConsumerThread(LogBuffer logBuffer, LogProcessor logProcessor) {
             this.logBuffer = logBuffer;
             this.logProcessor = logProcessor;
@@ -24,10 +26,24 @@ public class LogConsumer {
                 LogEvent logEvent = logBuffer.get();
                 logProcessor.process(logEvent);
             }
+            isFinished = true;
+            synchronized (this) {
+                notifyAll();
+            }
         }
 
         public void stopConsuming() {
             shouldConsume = false;
+            // Wait for consumer function to exit
+            synchronized (this) {
+                while (!isFinished) {
+                    try {
+                        wait();
+                    } catch (InterruptedException e) {
+                        // Do nothing try to exit.
+                    }
+                }
+            }
         }
     }
 
@@ -39,11 +55,11 @@ public class LogConsumer {
     }
 
     public void startConsumer() {
+        // Setup shutdown hooks to flush remaining data
+        Runtime.getRuntime().addShutdownHook(new Thread(this::shutDownConsumer));
         thread = new LogConsumerThread(logBuffer, logProcessor);
         thread.setDaemon(true);
         thread.start();
-        // Setup shutdown hooks to flush remaining data
-        Runtime.getRuntime().addShutdownHook(new Thread(this::shutDownConsumer));
     }
 
     public void shutDownConsumer() {
@@ -53,5 +69,4 @@ public class LogConsumer {
             logProcessor.process(logEvent);
         }
     }
-
 }

@@ -6,6 +6,7 @@ public class Main {
         Logger logger = new Logger(Main.class.getName());
         long startTime = System.nanoTime();
         logger.info("Hello {}", 1);
+        logger.info("Hello {}", 2);
         long endTime = System.nanoTime();
         System.out.println(endTime - startTime);
     }
