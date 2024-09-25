@@ -1,20 +1,29 @@
 package org.example.nanologger;
 
 
+import org.example.nanologger.Factory.LogBufferFactory;
+import org.example.nanologger.Factory.LogConsumerFactory;
 import org.example.nanologger.LogConsumer.LogConsumer;
-import org.example.nanologger.RingBuffer.RingLogBuffer;
+import org.example.nanologger.config.Configurator;
 
 public class Logger {
     private final LogBuffer logBuffer;
-
+    private final int logLevel;
     public Logger(String className) {
-        logBuffer = new RingLogBuffer();
-        LogConsumer logConsumer = new LogConsumer(logBuffer, new LogProcessor(className, new LogMessagePrinter()));
+        logBuffer = LogBufferFactory.getLogBuffer();
+        LogConsumer logConsumer = LogConsumerFactory.getLogConsumer(logBuffer, className);
         logConsumer.startConsumer();
+        logLevel = Configurator.getConfig().getLogLevel().getLevelValue();
     }
     public void info(String msg, Object ... obj) {
         LogEvent logEvent = new LogEvent(msg, obj, LogLevel.INFO);
-        logBuffer.add(logEvent);
+        log(logEvent);
+    }
+
+    private void log(LogEvent logEvent) {
+        if(logLevel <= logEvent.getLogLevel().getLevelValue()) {
+            logBuffer.add(logEvent);
+        }
     }
 
 }

@@ -1,6 +1,11 @@
-package org.example.nanologger;
+package org.example.nanologger.LogProcessor;
 
 
+import org.example.nanologger.LogEvent;
+import org.example.nanologger.LogLevel;
+import org.example.nanologger.LogMessageAppenders.LogMessageAppender;
+
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -11,7 +16,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class LogProcessor {
-    private final String pattern = "%level %t{ yyyy-MM-dd HH:mm:ss.SSS}  %context Log-> %message";
     private final LogLineProcessor logLineProcessor;
     private final LogMessageAppender messageAppender;
 
@@ -75,19 +79,31 @@ public class LogProcessor {
         }
     }
 
-    public LogProcessor(String className, LogMessageAppender logMessageAppender) {
-        logLineProcessor = new LogLineProcessor(pattern, new HashMap<>()).processContext(className);
-        messageAppender = logMessageAppender;
+    public LogProcessor(String className, LogMessageAppender logMessageAppender, String pattern) {
+        this.logLineProcessor = new LogLineProcessor(pattern, new HashMap<>()).processContext(className);
+        this.messageAppender = logMessageAppender;
     }
 
     public void process(LogEvent event) {
-        StringBuilder messageBuilder = new StringBuilder(event.msg);
-
-        for (Object items : event.objects) {
+        if (event == null) {
+            // Nothing to process
+            return;
+        }
+        StringBuilder messageBuilder = new StringBuilder(event.getMessage());
+        for (Object items : event.getObjects()) {
             int index = messageBuilder.indexOf("{}");
             messageBuilder.replace(index, index + 2, items.toString());
         }
-        process(messageBuilder.toString(), event.logLevel);
+        messageBuilder.append('\n');
+        process(messageBuilder.toString(), event.getLogLevel());
+    }
+
+    public void flushAppender() {
+        try {
+            messageAppender.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void process(String message, LogLevel logLevel) {
@@ -96,7 +112,11 @@ public class LogProcessor {
                 .processMessage(message)
                 .processTimeStamp()
                 .getLogLine();
-        messageAppender.append(logLine);
+        try {
+            messageAppender.append(logLine);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }

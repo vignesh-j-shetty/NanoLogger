@@ -1,0 +1,8 @@
+logOutputType: console
+logOutputPattern: "%level %t{ yyyy-MM-dd HH:mm:ss.SSS}  %context Log-> %message"
+logFileConfig:
+  name: mylog.txt
+  isAppend: true
+
+bufferType: ringBuffer
+logLevel: WARN

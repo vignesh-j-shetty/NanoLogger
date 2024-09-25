@@ -2,7 +2,7 @@ package org.example.nanologger.LogConsumer;
 
 import org.example.nanologger.LogBuffer;
 import org.example.nanologger.LogEvent;
-import org.example.nanologger.LogProcessor;
+import org.example.nanologger.LogProcessor.LogProcessor;
 
 public class LogConsumer {
 
@@ -34,6 +34,7 @@ public class LogConsumer {
 
         public void stopConsuming() {
             shouldConsume = false;
+            logBuffer.interrupt();
             // Wait for consumer function to exit
             synchronized (this) {
                 while (!isFinished) {
@@ -68,5 +69,6 @@ public class LogConsumer {
             LogEvent logEvent = logBuffer.get();
             logProcessor.process(logEvent);
         }
+        logProcessor.flushAppender();
     }
 }
